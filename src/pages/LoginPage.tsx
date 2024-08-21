@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   TextField,
   Button,
@@ -6,12 +6,17 @@ import {
   Card,
   CardContent,
   Avatar,
+  InputAdornment,
+  IconButton,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = () => {
@@ -22,6 +27,16 @@ const LoginPage = () => {
     }
   };
 
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.preventDefault();
+  };
+
   return (
     <div
       style={{
@@ -29,6 +44,7 @@ const LoginPage = () => {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
+        backgroundColor: "#19181f",
       }}
     >
       <Card
@@ -37,7 +53,8 @@ const LoginPage = () => {
           maxWidth: 500,
           padding: 3,
           backgroundColor: "#19181f",
-          border: "2px solid #ffffff",
+          border: "none",
+          boxShadow: "none",
         }}
       >
         <CardContent
@@ -47,14 +64,26 @@ const LoginPage = () => {
             alignItems: "center",
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: "#f0803c" }}>
-            <LockOutlinedIcon />
+          <Avatar
+            sx={{
+              m: 1,
+              bgcolor: "#19181f",
+              width: 50,
+              height: 50,
+              border: "2px solid #f0803c",
+            }}
+          >
+            <LockOutlinedIcon sx={{ color: "#f0803c", fontSize: 32 }} />
           </Avatar>
           <Typography
             variant="h5"
             component="div"
             gutterBottom
-            style={{ color: "#f0803c" }}
+            style={{
+              color: "#ffffff",
+              textAlign: "center",
+              marginBottom: "16px",
+            }}
           >
             Login
           </Typography>
@@ -65,7 +94,7 @@ const LoginPage = () => {
           )}
           <TextField
             fullWidth
-            label="Username"
+            label="Email Address"
             margin="normal"
             variant="outlined"
             value={username}
@@ -73,7 +102,7 @@ const LoginPage = () => {
             sx={{
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: "#cccccc",
+                  borderColor: "#888888",
                 },
                 "&:hover fieldset": {
                   borderColor: "#f0803c",
@@ -82,16 +111,25 @@ const LoginPage = () => {
                   borderColor: "#f0803c",
                 },
                 backgroundColor: "#2c2c34",
+                color: "#ffffff",
+                "& input:-webkit-autofill": {
+                  WebkitBoxShadow: "0 0 0 100px #2c2c34 inset",
+                  WebkitTextFillColor: "#ffffff",
+                  borderColor: "#f0803c",
+                },
               },
               "& .MuiInputLabel-root": {
-                color: "#cccccc",
+                color: "#888888",
               },
+            }}
+            InputLabelProps={{
+              style: { color: "#888888" },
             }}
           />
           <TextField
             fullWidth
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             margin="normal"
             variant="outlined"
             value={password}
@@ -99,7 +137,7 @@ const LoginPage = () => {
             sx={{
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: "#cccccc",
+                  borderColor: "#888888",
                 },
                 "&:hover fieldset": {
                   borderColor: "#f0803c",
@@ -108,10 +146,29 @@ const LoginPage = () => {
                   borderColor: "#f0803c",
                 },
                 backgroundColor: "#2c2c34",
+                color: "#ffffff",
               },
               "& .MuiInputLabel-root": {
-                color: "#cccccc",
+                color: "#888888",
               },
+            }}
+            InputLabelProps={{
+              style: { color: "#888888" },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickShowPassword}
+                    onMouseDown={handleMouseDownPassword}
+                    edge="end"
+                    sx={{ color: "#f0803c" }}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
             }}
           />
           <Button
@@ -119,7 +176,14 @@ const LoginPage = () => {
             color="primary"
             fullWidth
             onClick={handleLogin}
-            sx={{ marginTop: 2 }}
+            sx={{
+              marginTop: 2,
+              backgroundColor: "#f0803c",
+              color: "#ffffff",
+
+              height: "48px",
+              fontSize: "16px",
+            }}
           >
             Login
           </Button>

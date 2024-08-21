@@ -25,7 +25,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           backgroundColor: "#19181f",
-          border: "2px solid #ffffff",
+          border: "2px solid #a2a2a7",
         },
       },
     },
