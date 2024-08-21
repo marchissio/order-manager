@@ -1,5 +1,4 @@
-// src/LoginPage.tsx
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   TextField,
   Button,
@@ -16,12 +15,10 @@ const LoginPage = () => {
   const [error, setError] = useState("");
 
   const handleLogin = () => {
-    // Handle login logic
     if (username === "" || password === "") {
       setError("Please enter both username and password.");
     } else {
       setError("");
-      // Proceed with login logic
     }
   };
 
@@ -37,7 +34,7 @@ const LoginPage = () => {
       <Card
         sx={{
           width: "100%",
-          maxWidth: 500, // Increased width for the card
+          maxWidth: 500,
           padding: 3,
           backgroundColor: "#19181f",
           border: "2px solid #ffffff",

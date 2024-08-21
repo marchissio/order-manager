@@ -1,6 +1,4 @@
-// src/theme.ts
 import { createTheme } from "@mui/material/styles";
-import { CssBaseline } from "@mui/material";
 
 const theme = createTheme({
   palette: {
