@@ -94,7 +94,7 @@ const LoginPage = () => {
           )}
           <TextField
             fullWidth
-            label="Email Address"
+            label="Username"
             margin="normal"
             variant="outlined"
             value={username}
