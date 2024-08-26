@@ -1,6 +1,6 @@
 import { Box, CircularProgress } from "@mui/material";
 import { Outlet } from "react-router-dom";
-import NavigationSection from "../components/Navigation/NavigationSection";
+import NavigationSection from "../components/NavigationSection";
 
 interface HomePageProps {
   isScreenLoading: boolean;

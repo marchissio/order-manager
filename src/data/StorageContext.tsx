@@ -1,16 +1,12 @@
-import { createContext, useState, useEffect } from "react";
-// import axios from "axios";
+import { createContext, useState, useEffect, useContext } from "react";
+import axios from "axios";
+// import { apiAddress } from "../config";
+import { checkAuth, setAuth } from "../utils/auth";
+import { IHospitalityVenue, ITable, IWaiter } from "../types/venueType";
+import { removeSelectedVenueLS } from "../utils/hospitalityVenue";
+import { createError } from "../utils/createError";
 
-// import { apiAddress } from "config";
-// import { checkAuth, setAuth } from "utils/auth";
-// import { IHospitalityVenue, ITable, IWaiter } from "../types/venueType";
-// import { removeSelectedVenueLS } from "utils/hospitalityVenue";
-// import { createError } from "utils/createError";
-
-interface IStorageProviderProps {
-  children: React.ReactNode;
-}
-
+// Interfaces
 interface IUser {
   email: string;
   firstName: string;
@@ -25,6 +21,7 @@ interface ITableData {
   messages: string[];
   disabledCategories: string[];
 }
+
 interface IUpdateTableData {
   id: string;
   hospitalityVenueId: string;
@@ -53,16 +50,16 @@ interface IUpdateCategoryData {
 
 interface IStorageContext {
   isAuthenticated: boolean;
+  isLoading: boolean;
+  isScreenLoading: boolean;
   hospitalityVenues: IHospitalityVenue[];
   userData: IUser;
   selectedVenue?: IHospitalityVenue;
-  isLoading: boolean;
-  isScreenLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  setSelectedVenue: (venue: IHospitalityVenue) => void;
   addMessage: (messageText: string) => Promise<void>;
   deleteMessage: (messageId: string) => Promise<void>;
-  setSelectedVenue: (venue: IHospitalityVenue) => void;
   addTable: (data: ITableData) => Promise<void>;
   deleteTable: (tableId: string) => Promise<void>;
   addWaiter: (data: IWaitedData) => Promise<void>;
@@ -73,18 +70,19 @@ interface IStorageContext {
   deleteArticleCategory: (categoryId: string) => Promise<void>;
 }
 
+// Initial State
 const initialState: IStorageContext = {
   isAuthenticated: false,
+  isLoading: false,
+  isScreenLoading: false,
   hospitalityVenues: [],
   userData: { email: "", firstName: "", lastName: "", role: "MANAGER" },
   selectedVenue: undefined,
-  isLoading: false,
-  isScreenLoading: false,
   login: async (email: string, password: string) => {},
   logout: async () => {},
+  setSelectedVenue: (venue: IHospitalityVenue) => {},
   addMessage: async (messageText: string) => {},
   deleteMessage: async (messageId: string) => {},
-  setSelectedVenue: (venue: IHospitalityVenue) => {},
   addTable: async (data: ITableData) => {},
   deleteTable: async (tableId: string) => {},
   addWaiter: async (data: IWaitedData) => {},
@@ -95,12 +93,16 @@ const initialState: IStorageContext = {
   deleteArticleCategory: async (categoryId: string) => {},
 };
 
+// Context
 const StorageContext = createContext<IStorageContext>(initialState);
 
-const StorageProvider = ({ children }: IStorageProviderProps) => {
+// Provider
+const StorageProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(checkAuth());
   const [userData, setUserData] = useState<IUser>(initialState.userData);
-  const [hospitalityVenues, setHospitalityVenues] = useState([]);
+  const [hospitalityVenues, setHospitalityVenues] = useState<
+    IHospitalityVenue[]
+  >([]);
   const [selectedVenue, setSelectedVenue] = useState<IHospitalityVenue>();
   const [isLoading, setIsLoading] = useState(false);
   const [isScreenLoading, setIsScreenLoading] = useState(false);
@@ -129,10 +131,28 @@ const StorageProvider = ({ children }: IStorageProviderProps) => {
       );
       setIsLoading(false);
       setAuthentication(true);
-      console.log(response.data);
       setUserData(response.data);
     } catch (error) {
       setIsLoading(false);
+      throw createError(error);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setIsScreenLoading(true);
+      await axios.post(
+        `${apiAddress}/auth/sign-out`,
+        {},
+        { withCredentials: true }
+      );
+      setAuthentication(false);
+      setUserData(initialState.userData);
+      setHospitalityVenues([]);
+      removeSelectedVenueLS();
+      setIsScreenLoading(false);
+    } catch (error) {
+      setIsScreenLoading(false);
       throw createError(error);
     }
   };
@@ -156,26 +176,6 @@ const StorageProvider = ({ children }: IStorageProviderProps) => {
         removeSelectedVenueLS();
         return window.location.reload();
       }
-      console.log(e.message);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      setIsScreenLoading(true);
-      await axios.post(
-        `${apiAddress}/auth/sign-out`,
-        {},
-        { withCredentials: true }
-      );
-      setAuthentication(false);
-      setUserData(initialState.userData);
-      setHospitalityVenues([]);
-      removeSelectedVenueLS();
-      setIsScreenLoading(false);
-    } catch (error) {
-      setIsScreenLoading(false);
-      throw createError(error);
     }
   };
 
@@ -243,29 +243,13 @@ const StorageProvider = ({ children }: IStorageProviderProps) => {
     }
   };
 
-  const addTable = async ({
-    name,
-    hospitalityVenueId,
-    users,
-    messages,
-    disabledCategories,
-  }: ITableData) => {
+  const addTable = async (data: ITableData) => {
     try {
       setIsScreenLoading(true);
-      const response = await axios.post(
-        `${apiAddress}/table/add`,
-        {
-          name,
-          hospitalityVenueId,
-          users,
-          messages,
-          disabledCategories,
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.post(`${apiAddress}/table/add`, data, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      });
 
       const newTable: ITable = response.data.data;
 
@@ -310,25 +294,15 @@ const StorageProvider = ({ children }: IStorageProviderProps) => {
     }
   };
 
-  const addWaiter = async ({
-    email,
-    firstName,
-    lastName,
-    password,
-    tables,
-  }: IWaitedData) => {
+  const addWaiter = async (data: IWaitedData) => {
     try {
       setIsLoading(true);
       const response = await axios.put(
         `${apiAddress}/auth/signup`,
         {
-          email,
-          firstName,
-          lastName,
-          password,
+          ...data,
           role: "WAITER",
           hospitalityVenues: [selectedVenue!.id],
-          tables,
         },
         {
           headers: { "Content-Type": "application/json" },
@@ -380,23 +354,13 @@ const StorageProvider = ({ children }: IStorageProviderProps) => {
     }
   };
 
-  const changeTable = async ({
-    id,
-    hospitalityVenueId,
-    users,
-    messages,
-    disabledCategories,
-  }: IUpdateTableData) => {
+  const changeTable = async (data: IUpdateTableData) => {
     try {
       setIsLoading(true);
-      const response = await axios.put(
-        `${apiAddress}/table/${id}`,
-        { hospitalityVenueId, users, messages, disabledCategories },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const response = await axios.put(`${apiAddress}/table/${data.id}`, data, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      });
 
       const updatedTable: ITable = response.data.data;
 
@@ -405,16 +369,18 @@ const StorageProvider = ({ children }: IStorageProviderProps) => {
           return {
             ...prev,
             tables: prev.tables.map((table) =>
-              table.id === id ? updatedTable : table
+              table.id === data.id ? updatedTable : table
             ),
             users: prev.users.map((user) => {
-              if (users.includes(user.id)) {
+              if (data.users.includes(user.id)) {
                 const currUserTables = user.tables.map((table) => table.id);
-                if (!currUserTables.includes(id)) {
-                  user.tables.push({ id });
+                if (!currUserTables.includes(data.id)) {
+                  user.tables.push({ id: data.id });
                 }
               } else {
-                user.tables = user.tables.filter((table) => table.id !== id);
+                user.tables = user.tables.filter(
+                  (table) => table.id !== data.id
+                );
               }
               return user;
             }),
@@ -430,15 +396,16 @@ const StorageProvider = ({ children }: IStorageProviderProps) => {
     }
   };
 
-  const changeWaiterTables = async ({
-    tables,
-    waiterId,
-  }: IUpdateWaiterData) => {
+  const changeWaiterTables = async (data: IUpdateWaiterData) => {
     try {
       setIsLoading(true);
       const response = await axios.post(
         `${apiAddress}/user/connect-table`,
-        { tables, hospitalityVenueId: selectedVenue!.id, userId: waiterId },
+        {
+          tables: data.tables,
+          hospitalityVenueId: selectedVenue!.id,
+          userId: data.waiterId,
+        },
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -455,14 +422,14 @@ const StorageProvider = ({ children }: IStorageProviderProps) => {
               user.id === updatedWaiter.id ? updatedWaiter : user
             ),
             tables: prev.tables.map((table) => {
-              if (tables.includes(table.id)) {
+              if (data.tables.includes(table.id)) {
                 const currTableWaiters = table.users.map((user) => user.id);
-                if (!currTableWaiters.includes(waiterId)) {
-                  table.users.push({ id: waiterId });
+                if (!currTableWaiters.includes(data.waiterId)) {
+                  table.users.push({ id: data.waiterId });
                 }
               } else {
                 table.users = table.users.filter(
-                  (user) => user.id !== waiterId
+                  (user) => user.id !== data.waiterId
                 );
               }
               return table;

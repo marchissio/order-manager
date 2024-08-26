@@ -1,0 +1,48 @@
+[
+  {
+    "name": "Table 1",
+    "locationId": "491abb7a-3136-4485-ac44-e7f39b914e61",
+    "categories": [
+      {
+        "id": "a3d9f2b2-1b3b-4d47-9c5c-8e2c34e6b7df",
+        "name": "Drinks"
+      },
+      {
+        "id": "b1e7a7b8-4a62-42d1-a14e-8d89e13a5c5f",
+        "name": "Appetizers"
+      }
+    ]
+  },
+  {
+    "name": "Table 2",
+    "locationId": "7c34e28e-4b62-471c-9b10-3f08b9b485b7",
+    "categories": [
+      {
+        "id": "c8a0e1d2-2d4f-4b38-a4d1-07e6d5b4e0f1",
+        "name": "Main Courses"
+      },
+      {
+        "id": "d4f7e4b8-3f4c-4d5e-b3b2-17f9f5b7c7e4",
+        "name": "Desserts"
+      },
+      {
+        "id": "e7b3e2f2-3a3d-47c1-b5d1-3e2c1a5b7c8f",
+        "name": "Beverages"
+      }
+    ]
+  },
+  {
+    "name": "Table 3",
+    "locationId": "9d56b77a-5f4b-4834-8e6c-9d3b7a7f35b6",
+    "categories": [
+      {
+        "id": "f6a1e3d2-1d4e-4b47-a5b3-07d5f7a6b3d2",
+        "name": "Specials"
+      },
+      {
+        "id": "g7e8f9b3-4c2d-4b1e-b3d5-1a7e3f9b6a5f",
+        "name": "Vegan Options"
+      }
+    ]
+  }
+]
